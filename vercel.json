@@ -5,10 +5,10 @@
             "use": "@vercel/python"
         }
     ],
-    "rewrites": [
+    "routes": [
         {
-            "source": "/(.*)",
-            "destination": "/app.py"
+            "src": "/(.*)",
+            "dest": "app.py"
         }
     ]
 }
