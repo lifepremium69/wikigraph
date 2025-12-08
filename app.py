@@ -343,10 +343,40 @@ HTML_TEMPLATE = """
 
     <script>
         var cy;
+        const ZOOM_INCREMENT = 0.05; // New smaller increment for smoother zoom
 
         document.addEventListener('DOMContentLoaded', function() {
             initEmptyGraph();
+            setupCustomZoom(); // Setup the new custom scroll handler
         });
+        
+        function setupCustomZoom() {
+            const container = document.getElementById('cy');
+            
+            // Disable Cytoscape's default zoom behavior
+            cy.userZoomingEnabled(false);
+
+            container.addEventListener('wheel', function(event) {
+                event.preventDefault(); // Stop default page scroll/Cytoscape scroll
+
+                if (!cy) return;
+                
+                const factor = event.deltaY < 0 ? 1 + ZOOM_INCREMENT : 1 - ZOOM_INCREMENT;
+                const newZoom = cy.zoom() * factor;
+
+                // Determine the position for zooming (use cursor position for focus)
+                const containerRect = container.getBoundingClientRect();
+                const panX = event.clientX - containerRect.left;
+                const panY = event.clientY - containerRect.top;
+
+                // Zoom towards the cursor position
+                cy.zoom({
+                    level: newZoom,
+                    renderedPosition: { x: panX, y: panY }
+                });
+            }, { passive: false });
+        }
+
 
         function initEmptyGraph() {
             cy = cytoscape({
@@ -378,7 +408,19 @@ HTML_TEMPLATE = """
             const company = document.getElementById('companyInput').value;
             const depth = document.getElementById('depthInput').value;
 
-            if (!company) { alert("Please enter a company name"); return; }
+            // Using custom alert substitute
+            if (!company) { 
+                const button = document.getElementById('runBtn');
+                button.textContent = "Enter Company!";
+                button.classList.remove('bg-blue-600');
+                button.classList.add('bg-red-500');
+                setTimeout(() => {
+                    button.textContent = "Run Analysis";
+                    button.classList.remove('bg-red-500');
+                    button.classList.add('bg-blue-600');
+                }, 2000);
+                return; 
+            }
 
             // UI Updates
             document.getElementById('runBtn').disabled = true;
@@ -401,7 +443,7 @@ HTML_TEMPLATE = """
                 if (done) break;
                 
                 buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\\n');
+                const lines = buffer.split('\n');
                 
                 // Process complete JSON lines
                 buffer = lines.pop(); 
@@ -434,9 +476,12 @@ HTML_TEMPLATE = """
                     document.getElementById('graphControls').classList.remove('hidden');
                 }, 1000);
             } else if (msg.status === 'error') {
-                alert(msg.message);
-                document.getElementById('progressPanel').classList.add('hidden');
+                document.getElementById('progressDetail').innerText = `Error: ${msg.message}`;
+                document.getElementById('progressPanel').classList.remove('bg-blue-600');
+                document.getElementById('progressPanel').classList.add('bg-red-500');
+                
                 document.getElementById('runBtn').disabled = false;
+                document.getElementById('runBtn').classList.remove('opacity-50');
             }
         }
 
@@ -520,5 +565,3 @@ if __name__ == '__main__':
     print("Starting WikiGraph Explorer...")
     print("Go to http://127.0.0.1:5000 in your browser.")
     app.run(debug=True, port=5000)
-
-
