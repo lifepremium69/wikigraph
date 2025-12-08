@@ -244,14 +244,25 @@ HTML_TEMPLATE = """
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Cytoscape & Extensions -->
+    <!-- CORE Cytoscape -->
     <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
+
+    <!-- DAGRE LAYOUT DEPENDENCIES -->
+    <!-- Essential: Dagre library MUST be loaded before cytoscape-dagre -->
+    <script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
     <script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
-    <script src="https://unpkg.com/cytoscape-fcose@2.2.0/cytoscape-fcose.js"></script>
-    <script src="https://unpkg.com/klayjs@0.4.1/klay.js"></script>
-    <script src="https://unpkg.com/cytoscape-klay@3.1.4/cytoscape-klay.js"></script>
+
+    <!-- FCOSE LAYOUT DEPENDENCIES -->
+    <!-- Essential: Layout-base and cose-base MUST be loaded before fcose -->
     <script src="https://unpkg.com/layout-base@1.0.1/layout-base.js"></script>
     <script src="https://unpkg.com/cose-base@1.0.1/cose-base.js"></script>
+    <script src="https://unpkg.com/cytoscape-fcose@2.2.0/cytoscape-fcose.js"></script>
+
+    <!-- KLAY LAYOUT DEPENDENCIES -->
+    <script src="https://unpkg.com/klayjs@0.4.1/klay.js"></script>
+    <script src="https://unpkg.com/cytoscape-klay@3.1.4/cytoscape-klay.js"></script>
+    
+    <!-- Utilities -->
     <script src="https://unpkg.com/cytoscape-svg@0.4.0/cytoscape-svg.js"></script>
 
     <style>
@@ -342,18 +353,31 @@ HTML_TEMPLATE = """
     <div id="cy"></div>
 
     <script>
-        // Register Cytoscape extensions before calling cytoscape()
-        // These global variables are typically exposed by the CDN scripts loaded in the <head>
-        if (typeof cytoscapeDagre !== 'undefined') { cytoscape.use(cytoscapeDagre); }
-        if (typeof cytoscapeFcose !== 'undefined') { cytoscape.use(cytoscapeFcose); }
-        if (typeof cytoscapeKlay !== 'undefined') { cytoscape.use(cytoscapeKlay); }
-        
         var cy;
-        const ZOOM_INCREMENT = 0.05; // New smaller increment for smoother zoom
+        const ZOOM_INCREMENT = 0.05;
+
+        // --- EXTENSION REGISTRATION ---
+        // We run this immediately to catch global variables exposed by CDNs.
+        try {
+            if (typeof cytoscapeDagre !== 'undefined') { 
+                cytoscape.use(cytoscapeDagre); 
+                console.log("Registered Dagre");
+            }
+            if (typeof cytoscapeFcose !== 'undefined') { 
+                cytoscape.use(cytoscapeFcose); 
+                console.log("Registered fCoSE");
+            }
+            if (typeof cytoscapeKlay !== 'undefined') { 
+                cytoscape.use(cytoscapeKlay); 
+                console.log("Registered Klay");
+            }
+        } catch (e) {
+            console.error("Layout registration error:", e);
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
             initEmptyGraph();
-            setupCustomZoom(); // Setup the new custom scroll handler
+            setupCustomZoom(); 
         });
         
         function setupCustomZoom() {
