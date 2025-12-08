@@ -1,15 +1,19 @@
 {
-    "version": 2,
-    "builds": [
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
         {
-            "src": "app.py",
-            "use": "@vercel/python"
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
         }
-    ],
-    "rewrites": [
-        {
-            "source": "/(.*)",
-            "destination": "/app.py"
-        }
-    ]
+      ]
+    }
+  ]
 }
