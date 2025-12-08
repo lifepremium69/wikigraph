@@ -247,11 +247,11 @@ HTML_TEMPLATE = """
     <!-- Cytoscape & Extensions -->
     <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
     <script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
-    <script src="https://unpkg.com/layout-base@1.0.1/layout-base.js"></script>
-    <script src="https://unpkg.com/cose-base@1.0.1/cose-base.js"></script>
     <script src="https://unpkg.com/cytoscape-fcose@2.2.0/cytoscape-fcose.js"></script>
     <script src="https://unpkg.com/klayjs@0.4.1/klay.js"></script>
     <script src="https://unpkg.com/cytoscape-klay@3.1.4/cytoscape-klay.js"></script>
+    <script src="https://unpkg.com/layout-base@1.0.1/layout-base.js"></script>
+    <script src="https://unpkg.com/cose-base@1.0.1/cose-base.js"></script>
     <script src="https://unpkg.com/cytoscape-svg@0.4.0/cytoscape-svg.js"></script>
 
     <style>
@@ -342,6 +342,12 @@ HTML_TEMPLATE = """
     <div id="cy"></div>
 
     <script>
+        // Register Cytoscape extensions before calling cytoscape()
+        // These global variables are typically exposed by the CDN scripts loaded in the <head>
+        if (typeof cytoscapeDagre !== 'undefined') { cytoscape.use(cytoscapeDagre); }
+        if (typeof cytoscapeFcose !== 'undefined') { cytoscape.use(cytoscapeFcose); }
+        if (typeof cytoscapeKlay !== 'undefined') { cytoscape.use(cytoscapeKlay); }
+        
         var cy;
         const ZOOM_INCREMENT = 0.05; // New smaller increment for smoother zoom
 
