@@ -264,44 +264,46 @@ HTML_TEMPLATE = """
     <script src="https://unpkg.com/cytoscape-svg@0.4.0/cytoscape-svg.js"></script>
 
     <style>
-        body, html { height: 100%; overflow: hidden; }
-        #cy { width: 100%; height: 100%; background-color: #f8fafc; }
+        body, html { height: 100%; overflow: hidden; background-color: #0f172a; }
+        #cy { width: 100%; height: 100%; background-color: #0f172a; } /* Dark Slate Background */
+        
         .glass-panel {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background: rgba(30, 41, 59, 0.85); /* Darker, slightly transparent slate */
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(71, 85, 105, 0.5); /* Subtle border */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            color: #f8fafc;
         }
     </style>
 </head>
-<body class="font-sans text-slate-800">
+<body class="font-sans text-slate-100">
 
     <!-- SIDEBAR CONTROLS -->
     <div class="absolute top-4 left-4 z-50 w-80 flex flex-col gap-4">
         
         <!-- SEARCH BOX -->
         <div class="glass-panel p-5 rounded-xl">
-            <h1 class="text-xl font-bold mb-4 text-blue-600 flex items-center gap-2">
+            <h1 class="text-xl font-bold mb-4 text-blue-400 flex items-center gap-2">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                 WikiGraph
             </h1>
             
             <div class="space-y-3">
                 <div>
-                    <label class="text-xs font-semibold uppercase text-slate-500">Company Name</label>
-                    <input type="text" id="companyInput" placeholder="e.g. Nvidia" class="w-full mt-1 px-3 py-2 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="text-xs font-semibold uppercase text-slate-400">Company Name</label>
+                    <input type="text" id="companyInput" placeholder="e.g. Nvidia" class="w-full mt-1 px-3 py-2 bg-slate-700 border border-slate-600 text-white placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 
                 <div>
-                    <label class="text-xs font-semibold uppercase text-slate-500">Search Depth</label>
-                    <select id="depthInput" class="w-full mt-1 px-3 py-2 bg-white border border-slate-300 rounded-lg">
+                    <label class="text-xs font-semibold uppercase text-slate-400">Search Depth</label>
+                    <select id="depthInput" class="w-full mt-1 px-3 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="1">1 (Direct connections)</option>
                         <option value="2" selected>2 (Standard)</option>
                         <option value="3">3 (Deep - Slower)</option>
                     </select>
                 </div>
 
-                <button onclick="startSearch()" id="runBtn" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors flex justify-center items-center gap-2">
+                <button onclick="startSearch()" id="runBtn" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors flex justify-center items-center gap-2 shadow-lg shadow-blue-900/50">
                     Run Analysis
                 </button>
             </div>
@@ -309,21 +311,21 @@ HTML_TEMPLATE = """
 
         <!-- PROGRESS BAR (Hidden by default) -->
         <div id="progressPanel" class="hidden glass-panel p-4 rounded-xl">
-            <div class="flex justify-between text-xs font-semibold mb-1">
+            <div class="flex justify-between text-xs font-semibold mb-1 text-slate-300">
                 <span id="progressStatus">Initializing...</span>
                 <span id="progressPercent">0%</span>
             </div>
-            <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-                <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            <div class="w-full bg-slate-700 rounded-full h-2.5 overflow-hidden">
+                <div id="progressBar" class="bg-blue-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
             </div>
-            <p id="progressDetail" class="text-xs text-slate-500 mt-2 truncate">Starting up...</p>
+            <p id="progressDetail" class="text-xs text-slate-400 mt-2 truncate">Starting up...</p>
         </div>
 
         <!-- GRAPH CONTROLS (Hidden until complete) -->
         <div id="graphControls" class="hidden glass-panel p-4 rounded-xl space-y-3">
             <div>
-                <label class="text-xs font-semibold uppercase text-slate-500">Layout</label>
-                <select id="layoutSelect" onchange="applyLayout(this.value)" class="w-full mt-1 px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm">
+                <label class="text-xs font-semibold uppercase text-slate-400">Layout</label>
+                <select id="layoutSelect" onchange="applyLayout(this.value)" class="w-full mt-1 px-3 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="klay" selected>Klay (Default)</option>
                     <option value="fcose">fCoSE (Physics)</option>
                     <option value="dagre">Dagre (Hierarchical)</option>
@@ -334,14 +336,14 @@ HTML_TEMPLATE = """
             </div>
             
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="saveGraph('png')" class="py-2 px-3 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg text-xs font-bold text-slate-700">
+                <button onclick="saveGraph('png')" class="py-2 px-3 bg-slate-700 border border-slate-600 hover:bg-slate-600 rounded-lg text-xs font-bold text-slate-200 transition-colors">
                     Save PNG
                 </button>
-                <button onclick="saveGraph('jpg')" class="py-2 px-3 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg text-xs font-bold text-slate-700">
+                <button onclick="saveGraph('jpg')" class="py-2 px-3 bg-slate-700 border border-slate-600 hover:bg-slate-600 rounded-lg text-xs font-bold text-slate-200 transition-colors">
                     Save JPG
                 </button>
             </div>
-             <button onclick="fitGraph()" class="w-full py-2 px-3 bg-slate-100 border border-slate-300 hover:bg-slate-200 rounded-lg text-xs font-bold text-slate-700">
+             <button onclick="fitGraph()" class="w-full py-2 px-3 bg-slate-800 border border-slate-700 hover:bg-slate-700 rounded-lg text-xs font-bold text-slate-300 transition-colors">
                 Re-Center Graph
             </button>
         </div>
@@ -396,7 +398,7 @@ HTML_TEMPLATE = """
                 style: [
                     { selector: 'node', style: {
                         'label': 'data(label)', 'text-valign': 'center', 'color': '#fff',
-                        'text-outline-width': 2, 'text-outline-color': '#1e293b',
+                        'text-outline-width': 2, 'text-outline-color': '#0f172a', // Match dark bg
                         'background-color': '#3b82f6', 'shape': 'roundrectangle',
                         'width': 'mapData(weight, 1, 6, 40, 100)', 'height': 'mapData(weight, 1, 6, 40, 100)',
                         'font-size': '12px'
@@ -405,13 +407,15 @@ HTML_TEMPLATE = """
                         'background-color': '#f97316', 'shape': 'ellipse'
                     }},
                     { selector: 'edge', style: {
-                        'width': 2, 'line-color': '#cbd5e1', 'target-arrow-color': '#cbd5e1',
+                        'width': 2, 'line-color': '#64748b', 'target-arrow-color': '#64748b', // Slate-500 for better visibility on dark
                         'target-arrow-shape': 'triangle', 'curve-style': 'bezier',
-                        'label': 'data(label)', 'font-size': '9px', 'text-rotation': 'autorotate',
-                        'text-background-color': '#ffffff', 'text-background-opacity': 0.8
+                        'label': 'data(label)', 'font-size': '10px', 'text-rotation': 'autorotate',
+                        'color': '#cbd5e1', // Light text for label
+                        'text-background-color': '#0f172a', // Dark bg for label
+                        'text-background-opacity': 0.8
                     }},
-                    { selector: 'edge[label="OWNS"]', style: { 'line-color': '#22c55e', 'target-arrow-color': '#22c55e' }},
-                    { selector: 'edge[label="KEY_PERSON_OF"]', style: { 'line-color': '#ef4444', 'target-arrow-color': '#ef4444' }}
+                    { selector: 'edge[label="OWNS"]', style: { 'line-color': '#22c55e', 'target-arrow-color': '#22c55e', 'color': '#86efac' }},
+                    { selector: 'edge[label="KEY_PERSON_OF"]', style: { 'line-color': '#ef4444', 'target-arrow-color': '#ef4444', 'color': '#fca5a5' }}
                 ]
             });
         }
@@ -424,10 +428,10 @@ HTML_TEMPLATE = """
                 const button = document.getElementById('runBtn');
                 button.textContent = "Enter Company!";
                 button.classList.remove('bg-blue-600');
-                button.classList.add('bg-red-500');
+                button.classList.add('bg-red-600');
                 setTimeout(() => {
                     button.textContent = "Run Analysis";
-                    button.classList.remove('bg-red-500');
+                    button.classList.remove('bg-red-600');
                     button.classList.add('bg-blue-600');
                 }, 2000);
                 return; 
