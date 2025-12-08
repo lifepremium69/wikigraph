@@ -303,7 +303,7 @@ HTML_TEMPLATE = """
                     </select>
                 </div>
 
-                <button onclick="startSearch()" id="runBtn" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors flex justify-center items-center gap-2 shadow-lg shadow-blue-900/50">
+                <button id="runBtn" type="button" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors flex justify-center items-center gap-2 shadow-lg shadow-blue-900/50">
                     Run Analysis
                 </button>
             </div>
@@ -362,6 +362,9 @@ HTML_TEMPLATE = """
         document.addEventListener('DOMContentLoaded', function() {
             initEmptyGraph();
             setupCustomZoom(); 
+            
+            // Explicitly attach event listener
+            document.getElementById('runBtn').addEventListener('click', startSearch);
         });
         
         function setupCustomZoom() {
@@ -421,6 +424,7 @@ HTML_TEMPLATE = """
         }
 
         async function startSearch() {
+            console.log("Starting search...");
             const company = document.getElementById('companyInput').value;
             const depth = document.getElementById('depthInput').value;
 
@@ -458,7 +462,8 @@ HTML_TEMPLATE = """
                 if (done) break;
                 
                 buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n');
+                // FIX: Escape the backslash for Python string compatibility
+                const lines = buffer.split('\\n');
                 
                 // Process complete JSON lines
                 buffer = lines.pop(); 
